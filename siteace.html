@@ -1,0 +1,178 @@
+<head>
+  <title>siteace</title>
+</head>
+
+<body>
+
+</body>
+
+<template name="ApplicationLayout">
+{{> yield "navbar"}}
+{{> yield "main"}}
+</template>
+
+<template name="navbar">
+	<!-- navbar  - you will be putting the login functions here -->
+	<nav id="navbar-black" class="navbar navbar-default navbar-fixed-top">
+	  <div class="container">
+	    <div class="navbar-header">
+	      <a class="navbar-brand" href="/">
+	        Site Ace
+	      </a>
+	      <a class="navbar-text navbar-right navbar-nav">
+	      	<ul>
+	    		{{> inputAutocomplete settings=settings id="msg" class="input-xsmall" placeholder="Search"}}
+	    	</ul>
+		  </a>
+	    </div>
+	    <ul class="navbar-text navbar-nav navbar-right">
+		{{> loginButtons align="right"}}
+	  </ul>
+	  </div>
+	</nav>
+</template>
+
+<template name="searchResult">
+	<span><a style="font-family:Lucida Console; color:Black; font-size: 15px;" href="/details/{{_id}}">{{title}} </a></span>
+</template>
+
+<template name="website_combo">
+	<div class="container">
+		{{> website_form}}
+		{{> website_list}}
+	</div>
+</template>
+
+<template name="website_detail">
+	<div class="container-fluid">
+		{{> website_single_item}}
+		<br>
+	</div>
+	<div class="container-fluid">
+		{{> insertCommentForm}}
+		<h4>User Comments </h4>
+		{{> commentList}}
+	</div>
+</template>
+
+<template name="website_form">
+	<a class="btn btn-default btn-primary js-toggle-website-form" href="#">
+  		<span class="glyphicon glyphicon-plus" aria-hidden="true"> ADD</span>
+	</a>
+	<hr>
+	<div class="modal fade" id="website_form">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <div class="modal-title">
+	        	ADD A WEBSITE
+	        </div>
+	      </div>
+	      <div class="modal-body">       
+	        <form class="js-save-website-form">
+		         <div class="form-group">
+				    <label for="url">Site address</label>
+				    <input type="text" class="form-control js-url-focusout" id="url" placeholder="http://www.mysite.com">
+				 </div>
+				 <div class="form-group">
+				    <label for="title">Title</label>
+				    <input type="text" class="form-control" id="title" placeholder="Mysite">
+				 </div>
+				 <div class="form-group">
+				    <label for="description">Description</label>
+				    <input type="text" class="form-control" id="description" placeholder="I found this site really useful for ...">
+				  </div>
+				  <button type="submit" class="btn btn-primary js-save-website-form" id="submit">Submit</button>
+				  <button class="btn btn-warning disabled" style="display: none;" id="submitload"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>Submit</button>
+	        </form> 
+	      </div>
+	      <div class="modal-footer">
+	        <button class="btn btn-warning" data-dismiss="modal">cancel</button>
+	      </div>  
+	    </div>
+	  </div>
+	</div>
+</template>
+
+<!-- template that displays several website items -->
+<template name="website_list">
+	<ol>
+	{{#each websites}}
+	{{>website_item}}
+	<br>
+	{{/each}}
+	</ol>
+</template>
+
+<!-- template that displays individual website entries -->
+<template name="website_item">
+<li>
+	<b> <a href="{{url}}">{{title}}</a></b>
+	<b>(<a href="/details/{{_id}}">more</a>)</b>
+	<p>
+		{{description}}
+	</p>
+	<small><i>Added on: {{createdOn}}</i></small>
+	<br>
+	<a href="#" class="btn btn-default btn-success js-upvote">
+		<span class="glyphicon glyphicon-arrow-up" aria-hidden="true">{{upVotes.count}}</span>
+	</a>
+	<a href="#" class="btn btn-default btn-danger js-downvote">
+		<span class="glyphicon glyphicon-arrow-down" aria-hidden="true">{{downVotes.count}}</span>
+	</a>
+	<br>
+	<!-- you will be putting your up and down vote buttons in here! -->
+</li>
+</template>
+
+<template name="website_single_item">
+	<h2>{{title}}</h2> 
+	<div class="container-fluid col-sm-7" style="background-color:#CEECF5;" id="{{_id}}">
+		<a href="{{url}}">(link)</a>
+		<p>
+			{{description}}
+		</p>
+	</div>
+	<div class="container-fluid col-md-5" style="background-color:#F5F6CE; border-style: solid;
+    border-color: #000000; border-style: initial;"> 
+    	<button class="btn btn-warning disabled" style="display: none;" id="submitload"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>Loading</button>
+	  	<img class= "js-onload" src="https://api.browshot.com/api/v1/simple?url={{url}}&instance_id=12&key=0MQkn3T0KLiU5KZUVeK1pU4j6" width="400" height="200" alt="SITE IMAGE" align="right"/>
+  	</div>
+  	<hr>
+  	<div class="container-fluid col-sm-12">
+		<small><i>Added on: {{createdOn}}</i></small>
+		<br>
+		<a class="btn btn-success disabled">
+			<span class="glyphicon glyphicon-arrow-up" aria-hidden="true">{{upVotes.count}}</span>
+		</a>
+		<a class="btn btn-danger disabled">
+			<span class="glyphicon glyphicon-arrow-down" aria-hidden="true">{{downVotes.count}}</span>
+		</a>
+	</div>
+	<br>
+</template>
+
+
+<template name="commentList">
+  {{#each comments _id}}
+  <ul>
+    <li>{{title}}
+      <p>{{body}}</p>
+      <small>-{{owner}}</small>
+    </li>
+  </ul>
+  {{/each}}
+</template>
+
+<template name="insertCommentForm">
+    {{#autoForm collection="Comments" id="insertCommentForm" type="method" meteormethod="addComment"}}
+    <fieldset>
+      <legend>Add Comment</legend>
+      {{> afQuickField name='title'}}
+      {{> afQuickField name='body' rows=6 value="Write your comment here"}}
+      {{> afQuickField name='websiteid' value=_id type="hidden"}}
+      {{> afQuickField name='owner' value=123 type="hidden"}}
+    </fieldset>
+    <button type="submit" class="btn btn-primary">Insert</button>
+  {{/autoForm}}
+</template>
